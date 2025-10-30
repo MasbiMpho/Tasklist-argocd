@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: tasklist
-          image: mpho15/springboot_tasklist_app:latest
+          image: mpho15/spring-boot-tasklist:latest
           ports:
             - containerPort: 8080
           env:

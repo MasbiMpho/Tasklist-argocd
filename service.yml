@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: tasklist-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: tasklist
   ports:

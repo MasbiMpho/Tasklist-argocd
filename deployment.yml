@@ -1,45 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tasklist-deployment
+  name: spring-boot-tasklist
   labels:
-    app: tasklist
+    app: spring-boot-tasklist
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tasklist
+      app: spring-boot-tasklist
   template:
     metadata:
       labels:
-        app: tasklist
+        app: spring-boot-tasklist
     spec:
       containers:
-        - name: tasklist
+        - name: spring-boot-tasklist
           image: mpho15/spring-boot-tasklist:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 8082
           env:
-            - name: APP_PORT
-              value: "8080"
-
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: DB_HOST
-              
-            - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://${DB_HOST}:5432/taskdb"
-  
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: DB_USERNAME
-  
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: DB_PASSWORD
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"

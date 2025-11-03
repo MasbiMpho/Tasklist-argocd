@@ -1,15 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: spring-boot-tasklist-service
-  labels:
-    app: spring-boot-tasklist
+  name: tasklist-service
 spec:
+  type: LoadBalancer
   selector:
-    app: spring-boot-tasklist
-  type: NodePort
+    app: tasklist
   ports:
-    - name: http
-      port: 8082
-      targetPort: 8082
-      nodePort: 30082
+    - port: 8082
+      targetPort: 8080
+      nodePort: 32000

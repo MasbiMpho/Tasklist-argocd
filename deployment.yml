@@ -30,7 +30,7 @@ spec:
                   key: DB_HOST
               
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://${HOST_IP}:5432/taskdb"
+              value: "jdbc:postgresql://${{ secret.HOST_IP }}:5432/taskdb"
   
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:

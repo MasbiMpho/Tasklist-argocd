@@ -1,0 +1,65 @@
+---
+- name: End-to-End Deployment for Tasklist Application
+  hosts: local
+  gather_facts: no
+  become: yes
+
+  vars:
+    db_container_name: "taskdb_db"
+    db_config_path: "/var/lib/postgresql/data" # Common path inside Postgres container
+
+  tasks:
+    # ----------------------------------------------------
+    # TASK 1: FIX POSTGRESQL listen_addresses
+    # ----------------------------------------------------
+    - name: 1. Ensure Postgres listens on all interfaces (*)
+      ansible.builtin.command: >
+        docker exec {{ db_container_name }} sh -c "
+        sed -i 's/#listen_addresses = .*/listen_addresses = \\'\\*\\'/g' {{ db_config_path }}/postgresql.conf
+        "
+
+    # ----------------------------------------------------
+    # TASK 2: FIX POSTGRESQL pg_hba.conf ENTRY
+    # ----------------------------------------------------
+    - name: 2. Add pg_hba.conf entry to allow connections from any host (0.0.0.0/0)
+    
+      ansible.builtin.command: >
+        docker exec {{ db_container_name }} sh -c "
+        if ! grep -q 'host all all 0.0.0.0/0 md5' {{ db_config_path }}/pg_hba.conf; then
+          echo 'host all all 0.0.0.0/0 md5' >> {{ db_config_path }}/pg_hba.conf
+        fi
+        "
+
+    # ----------------------------------------------------
+    # TASK 3: RESTART THE DB CONTAINER
+    # ----------------------------------------------------
+    - name: 3. Restart the Docker DB container to apply config changes
+      community.docker.docker_container:
+        name: "{{ db_container_name }}"
+        state: started
+        restart: yes
+
+    # ----------------------------------------------------
+    # TASK 4: DEPLOY KUBERNETES SECRET (If needed)
+    # ----------------------------------------------------
+    - name: 4. Ensure DB Credentials Secret exists
+
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: db-credentials
+            namespace: default
+          stringData:
+            DB_USERNAME: "postgres"
+            DB_PASSWORD: "admin"
+
+    # ----------------------------------------------------
+    # TASK 5: DEPLOY KUBERNETES DEPLOYMENT
+    # ----------------------------------------------------
+    - name: 5. Apply the Tasklist Kubernetes Deployment
+      kubernetes.core.k8s:
+        state: present
+        src: deployment.yml

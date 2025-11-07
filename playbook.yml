@@ -15,7 +15,7 @@
     - name: 1. Ensure Postgres listens on all interfaces (*)
       ansible.builtin.command: >
         docker exec {{ db_container_name }} sh -c "
-        sed -i 's/#listen_addresses = .*/listen_addresses = \\'\\*\\'/g' {{ db_config_path }}/postgresql.conf
+        sed -i 's/^#listen_addresses = .*$/listen_addresses = \\'*\\'/g' {{ db_config_path }}/postgresql.conf
         "
 
     # ----------------------------------------------------

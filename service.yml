@@ -7,6 +7,8 @@ spec:
   selector:
     app: tasklist
   ports:
-    - port: 8082
-      targetPort: 8080
+    - name: http
+      port: 8082
+      targetPort: 8082
+      protocol: TCP
       nodePort: 32000
